@@ -1,0 +1,34 @@
+CREATE DATABASE TermProject;
+USE TermProject;
+
+DROP TABLE users;
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE IF NOT EXISTS user(
+	ID INTEGER not NULL AUTO_INCREMENT,
+    username varchar(50),
+    password varchar(24),
+    firstname varchar(20),
+    lastname varchar(20),
+    email varchar(50),
+    primary key(ID)
+);
+
+SELECT * FROM users;
+
+INSERT INTO users (username, password, firstname, lastname, email) values (
+'basicfornow', 'password', 'john', 'smith', 'basicfornow@default.com');
+
+CREATE TABLE IF NOT EXISTS animals(
+								   id INTEGER NOT NULL AUTO_INCREMENT,
+								   name varchar(50),
+								   species varchar(24),
+								   birthDate varchar(50),
+								   adoptionPrice varchar(50),
+								   PRIMARY KEY ( ID ));
+
+INSERT INTO animals(Name, Species, BirthDate, AdoptionPrice) values 
+('AnimalOne', 'Cat', '2019/1/01', '$10'),
+('AnimalOne', 'Cat', '2019/1/01', '$10');
+
+SELECT * FROM animals;
