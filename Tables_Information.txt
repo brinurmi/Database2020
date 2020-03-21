@@ -1,0 +1,74 @@
+All Tables Reference Outline
+
+*This document may not be up to date*
+
+--| User |--
+Attributes
+[ID: INTEGER, username: varchar(30) password: varchar(30),
+ firstName:  varchar(50), lastName:  varchar(50), email:  varchar(50)]
+
+Primary Key(s)
+[id, username]
+
+Foreign Key(s)
+[NONE]
+
+
+--| Animal |--
+Attributes
+[id:  INTEGER, name:  varchar(30), species:  varchar(24),
+ birthDate:  varchar(10), adoptionPrice: INTEGER]
+
+Primary Key(s)
+[id]
+
+Foreign Key(s)
+[NONE]
+
+
+--| Trait |--
+Attributes
+[trait: varchar(30), animalID: INTEGER]
+
+Primary Key(s)
+[trait, animalID]
+
+Foreign Key(s)
+[animalID, REF Animals(animalID)]
+
+
+--| Review |--
+Attributes
+[NEEDS UPDATE]
+
+Primary Key(s)
+[NEEDS UPDATE]
+
+Foreign Key(s)
+[NEEDS UPDATE]
+
+
+--| FavAnimal |--
+Attributes
+[animalID: INTEGER, username: varchar(30)]
+
+Primary Key(s)
+[animalID, username]
+
+Foreign Key(s)
+[animalID, REF Animals(animalID)]
+[username, REF Users(username)]
+
+
+--| FavBreeder |--
+Attributes
+[breederID: INTEGER, username: INTEGER]
+
+Primary Key(s)
+[breederID, username]
+
+Foreign Key(s)
+[breederID, REF Users(id)]
+[username, REF Users(username)]
+
+
