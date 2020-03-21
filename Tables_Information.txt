@@ -39,13 +39,13 @@ Foreign Key(s)
 
 --| Review |--
 Attributes
-[NEEDS UPDATE]
+[animalID: INTEGER]
 
 Primary Key(s)
-[NEEDS UPDATE]
+[animalID]
 
 Foreign Key(s)
-[NEEDS UPDATE]
+[animalID, REF Animals(animalID)]
 
 
 --| FavAnimal |--
