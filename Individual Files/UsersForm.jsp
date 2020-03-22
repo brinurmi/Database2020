@@ -12,6 +12,9 @@
 	<h1>User Information Form</h1>
 </div>
 
+<!-- CHECK: (Aesthetics) Change to field sets? -->
+<!-- [ FIELDSET/LEGEND REFERENCE: Web Dev p.416] -->
+
 <div align="center">
     <c:if test="${user != null}">
 	

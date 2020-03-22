@@ -4,7 +4,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <!-- TODO: Format output and layout -->
+    <!-- TODO: Style the forms (Web Dev p. 419) -->
     <title>User Login :: Adoption</title>
     <style>
 		#darktheme {
@@ -22,6 +22,7 @@
             float: left;
             width: 150px;
             clear: left;
+            color: #942c27;
             text-align: right;
             padding-right: 10px;
             margin-top: 10px;
@@ -32,49 +33,43 @@
             display: block;
         }
 		
-		nav a:link {
-			color: #006600;
+		a {
+			color: #499252;
+			text-decoration: none;
+		}
+				
+		a:hover {
+			color: #ccff99;
 		}
 		
-		nav a:visited {
-			color: #006600;
-		}
-		
-		nav a:focus, nav a:hover {
-			color: #cc66cc;
-		}
-		
-		nav a:active {
-			color: #000000;
-		}
     </style>
 </head>
 <body id="darktheme">
-
-<!-- TODO: Implement a Nav Bar -->
-<!-- <nav></nav> -->
 
 <header align="center">
     <h1>User Login</h1>
 </header>
 <div>
     <h4>Enter your Username and Password</h4>
-    <h5 color="red" >*Required</h5>
-
+	<h5 style="color: #942c27">*Required</h5>
+	
     <div>
     <fieldset>
     <legend>User Login</legend>
+    	<!-- If-time: Make only asterisks red -->
         <!-- Method set to POST: Login info hidden during transmission to -->
         <form action="LoginAttempt" method="post" id="loginform">
-            <label for="username" >*Username:</label>
+            <label for="username" >* Username:</label>
             <input id="username" name="username" type="text">
 
-            <label for="password">*Password</label>
+            <label for="password">* Password</label>
             <input id="password" name="password" type="password">
-
-            <input type="submit" value="Login">
+            
+            <input type="submit" value="Login" align="middle">
+            
+			<br>
+            <a href="UsersForm.jsp">Don't have an Account? Click Here to Register.</a>
         </form>
-        <a href="UsersForm.jsp">Don't have an Account? Click Here to Register.</a>
         </fieldset>
     </div>
 </div>

@@ -6,7 +6,7 @@
 	<style type="text/css">
 		#darktheme {
 			background-color: #5c5c5c;
-			color: #FFFFFF;
+			color: #ffffff;
 		}
 	</style>
 	<title>Add Animal</title>
@@ -30,9 +30,7 @@
 			<tr>
 				<th>Name:</th>
 				<td>
-					<input type="text" name="name" size="45"
-						   value="<c:out value='${animal.name}' />"
-					/>
+					<input type="text" name="name" size="45"/>
 				</td>
 			</tr>
 			<tr>
@@ -45,7 +43,7 @@
 			</tr>
 			<tr>
 				<!-- [ DATE FORM REFERENCE: Web Dev. p.428] -->
-				<!-- CRITICAL: Date selection does not work w/ Eclipse Internal Browser -->
+				<!-- NOTE: Date selection does not work w/ Eclipse Internal Browser -->
 				<th>Birth Date:</th>
 				<td>
 					<input type="date" name="birthDate" size="45"
@@ -64,13 +62,14 @@
 			<tr>
 				<th>Traits:</th>
 				<td>
-					<input type="text" name="traits" size="45"
-						   value="<c:out value='${animal.traits}' />"
-					/>
+					<!-- !! TODO: Handle scenarios where user entered anything other than A-Z and spaces -->
+					<!-- Possible Solution: Add java code to check (similar to DynamicDropSearch.jsp -->
+					<!-- [ SCROLLING TEXTAREA REFERENCE: Web Dev p.408+ ] -->
+					<textarea id="traits" name="traits" cols="30" rows="4" wrap="soft"></textarea>
 				</td>
 			</tr>
 			<tr>
-				<td colspan="2" align="center">
+				<td colspan="2">
 					<input type="submit" value="Submit"/>
 				</td>
 			</tr>

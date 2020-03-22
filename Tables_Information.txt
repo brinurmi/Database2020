@@ -38,15 +38,17 @@ Foreign Key(s)
 
 
 ---| Reviews |---
+!! Determine whether Reviews should have IDs !!
 Attributes
-[animalID: INTEGER, username: varchar(30)]
+[animalID: INTEGER, authorsUsername: varchar(30),
+ (*rating: DataTypeUnderReview*), comment: varchar(140)]
 
 Primary Key(s)
 [animalID]
 
 Foreign Key(s)
 [animalID, REF Animals(animalID)]
-[username, REF Users(username)]
+[authorsUsername, REF Users(username)]
 
 
 ---| FavAnimals |---

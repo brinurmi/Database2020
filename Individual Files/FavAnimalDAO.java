@@ -21,15 +21,19 @@ import java.util.List;
 //      - The method closeAndDisconnectAll() is implemented to replace the methods                      //
 //              resultSet.close() statement.close(), preparedStatement.close(), connect.disconnect().   //
 //              with intent to eliminate guess work as to which SQL items need to be closed and when.   //
+//      - !! The size of the table columns that reference usernames (e.g. favBreedersUsername) must     //
+//              match the size of corresponding column in the reference table.                          //
+//              [EXAMPLE]: If in table Users username is set to "varchar(30), then in                   //
+//                         table favBreeders favBreedersUsername must also be "varchar(30)"             //
 //                                                                                                      //
-// IntelliJ Warning Suppression:                                                                     /*
+// IntelliJ Warning Suppression:                                                                     //
 /*       */ @SuppressWarnings("SqlNoDataSourceInspection")                                              //
 //                                                                                                      //
 //------------------------------------------------------------------------------------------------------//
 
 
-@WebServlet("/AnimalDAO")
-public class AnimalDAO extends HttpServlet {
+@WebServlet("/FavAnimalDAO")
+public class FavAnimalDAO extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connect = null;
 	private Statement statement = null;
@@ -37,7 +41,7 @@ public class AnimalDAO extends HttpServlet {
 	private ResultSet resultSet = null;
 	
 
-	public AnimalDAO() {}
+	public FavAnimalDAO() {}
 
     protected void connect_func() throws SQLException {
         if (connect == null || connect.isClosed()) {
@@ -69,48 +73,35 @@ public class AnimalDAO extends HttpServlet {
 
 	public void initializeTable() throws SQLException {
 
-		String SQL_clearExistingTable = "DROP TABLE IF EXISTS animals";
+		String SQL_clearExistingFavAnimalsTable = "DROP TABLE IF EXISTS favAnimals";
 
-		String SQL_tableAnimals = "CREATE TABLE IF NOT EXISTS animals" +
-                                    "(id INTEGER NOT NULL AUTO_INCREMENT, " +
-                                    "name varchar(30)," +
-                                    "species varchar(24)," +
-                                    "birthDate varchar(10)," +
-                                    "adoptionPrice INTEGER," +
-                                    "PRIMARY KEY (id) );";
+		// CHECK: Change name of "username" to "favoriteBy" or similar
+		String SQL_tableFavAnimals = "CREATE TABLE IF NOT EXISTS favAnimals" +
+                                        "(animalID INTEGER NOT NULL, " +
+                                        "username varchar(30), " +
+                                        "PRIMARY KEY (animalID, username)," +
+                                        "FOREIGN KEY (animalID) REFERENCES Animals(animalID)," +
+                                        "FOREIGN KEY (username) REFERENCES Users(username)); ";
 
-		// IF TIME: Fill with better example names
-		String SQL_populateAnimalTable = "INSERT INTO animals(name, species, birthDate, adoptionPrice) values" +
-                                            "('Animal_1', 'Cat', '2018/1/01', '$10'), " +
-                                            "('Animal_2', 'Dog', '2018/2/01', '$20'), " +
-                                            "('Animal_3', 'Cat', '2018/3/01', '$30'), " +
-                                            "('Animal_4', 'Dog', '2018/4/01', '$40'), " +
-                                            "('Animal_5', 'Cat', '2019/5/01', '$50'), " +
-                                            "('Animal_6', 'Dog', '2019/6/01', '$60'), " +
-                                            "('Animal_7', 'Cat', '2019/7/01', '$70'), " +
-                                            "('Animal_8', 'Dog', '2019/8/01', '$80'), " +
-                                            "('Animal_9', 'Cat', '2020/9/01', '$90'), " +
-                                            "('Animal_10', 'Dog', '2020/10/01', '$100');"  ;
+		connect_func();											            // Ensure active connection
+		statement = connect.createStatement();                              // Create the statement
 
-		connect_func();											        // Ensure active connection
-		statement = connect.createStatement();                          // Create the statement
-
-		statement.executeUpdate(SQL_clearExistingTable);                // Drop any preexisting Animals table
-		statement.executeUpdate(SQL_tableAnimals);                      // Establish new Animals table
-		statement.executeUpdate(SQL_populateAnimalTable);               // Populate Table w/ Predefined initial values
+		statement.executeUpdate(SQL_clearExistingFavAnimalsTable);          // Drop any preexisting FavAnimals table
+		statement.executeUpdate(SQL_tableFavAnimals);                       // Establish new FavAnimals table
 
         closeAndDisconnectAll();
 	}
 
-
-	public List<Animal> listAllAnimals() throws SQLException {
+	
+	public List<Animal> listAllFavoriteAnimals(String username) throws SQLException {
 
 		connect_func();
 		
 	    List<Animal> listAnimals = new ArrayList<>();
-		String sql = "SELECT * FROM animals";
+        String sql = "SELECT * FROM favAnimals WHERE username = ?";
 
-		statement = (Statement) connect.createStatement();
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+		preparedStatement.setString(1, username);
 		resultSet = statement.executeQuery(sql);
 
 		while (resultSet.next())
@@ -122,6 +113,8 @@ public class AnimalDAO extends HttpServlet {
 			int adoptionPrice = resultSet.getInt("adoptionPrice");
 			String ownerUsername = resultSet.getString("ownerID");
 
+			// !! TODO: Add a method to list traits in the form (like a text box or links?)
+
 			Animal animal = new Animal(id, name, species, birthDate, adoptionPrice, ownerUsername);
 			listAnimals.add(animal);
 		}
@@ -132,18 +125,15 @@ public class AnimalDAO extends HttpServlet {
 	}
 
 	
-	public boolean insert(Animal animal) throws SQLException {
+	public boolean insert(int animalID, String ownerUsername) throws SQLException {
 
 	    connect_func();
 
-	    String sql = "INSERT INTO animals(name, species, birthDate, adoptionPrice, owner) VALUES (?, ?, ?, ?, ?)";
+	    String sql = "INSERT INTO favAnimals(animalID, username) VALUES (?, ?)";
 
 	    preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-		preparedStatement.setString(1, animal.name);
-		preparedStatement.setString(2, animal.species);
-		preparedStatement.setString(3, animal.birthDate);
-		preparedStatement.setInt(4, animal.adoptionPrice);
-		preparedStatement.setString(4, animal.ownerUsername);
+		preparedStatement.setInt(1, animalID);
+		preparedStatement.setString(2, ownerUsername);
 
 		boolean rowInserted = preparedStatement.executeUpdate() > 0;
 
@@ -153,14 +143,14 @@ public class AnimalDAO extends HttpServlet {
 	}
 
 
-	public boolean delete(int AnimalID) throws SQLException {
+	public boolean delete(int animalID) throws SQLException {
 
-		String sql = "DELETE FROM animals WHERE id = ?";
+		String sql = "DELETE FROM favAnimals WHERE animalID = ?";
 
 		connect_func();
 		
 		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-		preparedStatement.setInt(1, AnimalID);
+		preparedStatement.setInt(1, animalID);
 		
 		boolean rowDeleted = preparedStatement.executeUpdate() > 0;
 
@@ -170,38 +160,16 @@ public class AnimalDAO extends HttpServlet {
 	}
 
 
-	public boolean update(Animal animal) throws SQLException {
+	public Animal getFavAnimal(String username) throws SQLException {
 
-		String sql = "UPDATE animals SET Name=?, Species=?,BirthDate=?, AdoptionPrice=? where id = ?";
-
-		connect_func();
-		
-		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-		preparedStatement.setString(1, animal.name);                                    // Attached updated details
-		preparedStatement.setString(2, animal.species);
-		preparedStatement.setString(3, animal.birthDate);
-		preparedStatement.setInt(4, animal.adoptionPrice);
-
-		preparedStatement.setInt(5, animal.id);                                         // ID of animal to be updated
-		
-		boolean rowUpdated = preparedStatement.executeUpdate() > 0;
-
-        closeAndDisconnectAll();
-
-		return rowUpdated;
-	}
-
-
-	public Animal getAnimal(int id) throws SQLException {
-
-		String sql = "SELECT * FROM animals WHERE id = ?";
+		String sql = "SELECT * FROM favAnimals WHERE username = ?";
 
 		Animal animal = null;
 
 		connect_func();
 		
 		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-		preparedStatement.setInt(1, id);
+		preparedStatement.setString(1, username);
 		
 		resultSet = preparedStatement.executeQuery();
 		
@@ -211,9 +179,9 @@ public class AnimalDAO extends HttpServlet {
 			String species = resultSet.getString("species");
 			String birthDate = resultSet.getString("birthDate");
 			int adoptionPrice = resultSet.getInt("adoptionPrice");
-            String ownersUsername = resultSet.getString("ownerID");
+            String ownerID = resultSet.getString("ownerID");
 
-			animal = new Animal(name, species, birthDate, adoptionPrice, ownersUsername);
+			animal = new Animal(name, species, birthDate, adoptionPrice, ownerID);
 		}
 
         closeAndDisconnectAll();
@@ -221,4 +189,4 @@ public class AnimalDAO extends HttpServlet {
 		return animal;
 	}
 
-}// END [ CLASS: AnimalDAO ]
+}// END [ CLASS: FavoritesDAO ]
