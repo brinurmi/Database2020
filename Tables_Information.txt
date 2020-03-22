@@ -39,13 +39,14 @@ Foreign Key(s)
 
 ---| Reviews |---
 Attributes
-[animalID: INTEGER]
+[animalID: INTEGER, username: varchar(30)]
 
 Primary Key(s)
 [animalID]
 
 Foreign Key(s)
 [animalID, REF Animals(animalID)]
+[username, REF Users(username)]
 
 
 ---| FavAnimals |---
