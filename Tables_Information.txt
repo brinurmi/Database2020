@@ -2,7 +2,7 @@ Reference Outline of All Tables
 
 *This document may not be up to date*
 
---| User |--
+---| User |---
 Attributes
 [ID: INTEGER, username: varchar(30) password: varchar(30),
  firstName:  varchar(50), lastName:  varchar(50), email:  varchar(50)]
@@ -14,10 +14,10 @@ Foreign Key(s)
 [NONE]
 
 
---| Animal |--
+---| Animals |---
 Attributes
 [id:  INTEGER, name:  varchar(30), species:  varchar(24),
- birthDate:  varchar(10), adoptionPrice: INTEGER]
+ birthDate:  varchar(10), adoptionPrice: INTEGER, owner: varchar(30)]
 
 Primary Key(s)
 [id]
@@ -26,7 +26,7 @@ Foreign Key(s)
 [NONE]
 
 
---| Trait |--
+---| Traits |---
 Attributes
 [trait: varchar(30), animalID: INTEGER]
 
@@ -37,7 +37,7 @@ Foreign Key(s)
 [animalID, REF Animals(animalID)]
 
 
---| Review |--
+---| Reviews |---
 Attributes
 [animalID: INTEGER]
 
@@ -48,7 +48,7 @@ Foreign Key(s)
 [animalID, REF Animals(animalID)]
 
 
---| FavAnimal |--
+---| FavAnimals |---
 Attributes
 [animalID: INTEGER, username: varchar(30)]
 
@@ -60,7 +60,7 @@ Foreign Key(s)
 [username, REF Users(username)]
 
 
---| FavBreeder |--
+---| FavBreeders |---
 Attributes
 [breederID: INTEGER, username: INTEGER]
 
