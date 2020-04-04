@@ -1,55 +1,74 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 		 pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="java.sql.*" %>
+
+<!------------------------------------------------->
+<!-- !! !! FORMERLY: DynamicDropSearch.jsp !! !! -->
+<!------------------------------------------------->
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-	<title>User Management Application</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<title>Search by Trait</title>
 </head>
 <body>
-<center>
-	<h1>User Management</h1>
-	<h2>
-		<a href="new">Add New User</a>
-		&nbsp;&nbsp;&nbsp;
-		<a href="list">List All User</a>
-	</h2>
-</center>
-<div align="center">
-	<table border="1" cellpadding="5">
-		<caption><h2>List of Current Users</h2></caption>
-		<tr>
-			<th>Username</th>
+<h1>Search For Adoptable Animals</h1>
+<p>Please select a trait to view all animals with the given trait</p>
+
+<%!String driverName = "com.mysql.cj.jdbc.Driver";%>
+<%!String DB_Location = "jdbc:mysql://127.0.0.1:3306/TermProject?";%>
+<%!String DB_User = "root";%>
+<%!String DB_Password = "admin";%>
+
+<form action="ProcessAnimalTraitSearch">
+	<%
+		Connection connect = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		
+		// [ START: try/catch ]
+		try {
+			Class.forName(driverName);
+			connect = DriverManager.getConnection(DB_Location, DB_User, DB_Password);
 			
-			<!-- Hide password info unless root -->
-			<c:if test="${sessionScope.sUsername == root}">
-				<th>Password</th>
-			</c:if>
+			String SQL_selectDistinctTraits = "SELECT DISTINCT trait FROM traits";
 			
-			<th>First Name</th>
-			<th>Last Name</th>
-			<th>Email</th>
-		</tr>
-	<c:forEach var="user" items="${listUsers}">
-		<tr>
-			<td><c:out value="${user.username}"/></td>
+			preparedStatement = connect.prepareStatement(SQL_selectDistinctTraits);
+			resultSet = preparedStatement.executeQuery();
+	%>
+	<p>Select Trait :
+		<!-- Attribute "required" prevents a null-pointer exception -->
+		<select name="traits" required="required">
+			<%
+				StringBuilder trait = new StringBuilder(" ");
+				while (resultSet.next()) {
+					String traitRaw = resultSet.getString("trait");
+					char uppercase = Character.toUpperCase(traitRaw.charAt(0));
+					trait = new StringBuilder(traitRaw);
+					trait.setCharAt(0, uppercase);
+					
+					// Use StringBuilder.toString() for final output (See below)
+			%>
 			
-			<c:if test="${sessionScope.sUsername == root}">
-				<td><c:out value="${user.password}"/></td>
-			</c:if>
+			<option value="<%=trait.toString() %>"><%=trait %>
+			</option>
 			
-			<td><c:out value="${user.firstName}"/></td>
-			<td><c:out value="${user.lastName}"/></td>
-			<td><c:out value="${user.email}"/></td>
-			<td>
-				<a href="edit?id=<c:out value='${user.username}' />">Edit</a>
-				&nbsp;&nbsp;&nbsp;&nbsp;
-				<a href="delete?id=<c:out value='${user.username}' />">Delete</a>
-			</td>
-		</tr>
-	</c:forEach>
-	</table>
-</div>
+			<%
+				}
+				// END while loop
+			%>
+		</select>
+		<input type="submit" value="Search">
+	</p>
+	<%
+		} catch (SQLException sqe) {
+			out.println(sqe);
+		} // END [ try/catch ]
+	
+	
+	%>
+</form>
 </body>
 </html>
 

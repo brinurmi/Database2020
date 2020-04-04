@@ -16,12 +16,8 @@ public class User {
     protected String lastName;
     protected String email;
 
-    protected int postedAdoptionsCount = 0;
-
-
     public User() {
     }
-
 
     public User(int id) {
         this.id = id;
@@ -33,48 +29,28 @@ public class User {
         this.id = id;
     }
 
-
     public User(String username, String password, String firstName, String lastName, String email) {
-
-        // Invoked when NEW user is being added
-        // Variable "id" is auto-assigned when preparedStatement is executed [ See: UserDAO.insert() ]
-
         this.username = username;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
     }
- 
-    public int getId() {
-        return id;
-    }
- 
-    public void setId(int id) {
-        this.id = id;
-    }
-    
-    public String getUsername() { return username; }
-    
+
+    public void setId(int id) { this.id = id; }
     public void setUsername(String username) { this.username = username; }
-    
-    public String getPassword() { return password; }
-    
     public void setPassword(String password) { this.password = password; }
-    
-    public String getFirstName() { return firstName; }
-    
     public void setFirstName(String firstName) { this.firstName = firstName; }
-    
-    public String getLastName() { return lastName; }
-    
     public void setLastName(String lastName) { this.lastName = lastName; }
-    
-    public String getEmail() { return email; }
-    
     public void setEmail(String email) { this.email = email; }
 
-    // !! CHECK: Server-side calculating? (Count user's animals using their ID in the Animals table?)
-    public boolean maxPostsReached() { return postedAdoptionsCount >= 5; }
-    
-}// end [ CLASS: User ]
+    public int getId() { return id; }
+    public String getUsername() { return username; }
+    public String getPassword() { return password; }
+    public String getFirstName() { return firstName; }
+    public String getLastName() { return lastName; }
+    public String getEmail() { return email; }
+
+
+
+}

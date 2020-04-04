@@ -1,84 +1,48 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 		 pageEncoding="UTF-8" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-	<title>Add Animal</title>
+	<title>User Management Application</title>
 </head>
 <body>
-
-<div id="wrapper">
-	<h1>Put an Animal Up for Adoption</h1>
-	<nav>
-		<ul>
-			<li><a href="index.jsp">Home</a></li>
-			<li><a href="UsersForm.jsp">Edit User Information</a></li>
-			<li><a href="index.jsp">PLACEHOLDER</a></li>
-		</ul>
-	</nav>
-	<form action="SubmitNewAnimal" method="post">
+<center>
+	<h1>My Account</h1>
+	</h2>
+</center>
+<div align="center">
+	<c:if test="${session == null}">
+		response.sendRedirect("login.jsp");
+	</c:if>
 		<table border="1" cellpadding="5">
-			<caption>
-				<h2>Animal Information</h2>
-			</caption>
+			<caption><h2>Current User Information</h2></caption>
 			<tr>
-				<th>Name:</th>
-				<td>
-					<input
-							type="text" name="name" size="45"
-							autofocus="autofocus" required="required"/>
-				</td>
+				<th>Username</th>
+				<c:if test="${sessionScope.sUsername == root}">		<!-- Hide password info unless root -->
+					<th>Password</th>
+				</c:if>
+				<th>First Name</th>
+				<th>Last Name</th>
+				<th>Email</th>
 			</tr>
 			<tr>
-				<th>Species:</th>
+				<td><c:out value="${user.username}"/></td>
+				
+				<c:if test="${sessionScope.sUsername == root}">
+					<td><c:out value="${user.password}"/></td>
+				</c:if>
+				
+				<td><c:out value="${user.firstname}"/></td>
+				<td><c:out value="${user.lastname}"/></td>
+				<td><c:out value="${user.email}"/></td>
 				<td>
-					<textarea
-							name="species" minlength="2" maxlength="12"
-							cols="45" rows="1"
-							pattern="[A-Za-z]" required="required"
-							value="<c:out value='${animal.species}' />"
-					></textarea>
-				</td>
-			</tr>
-			<tr>
-				<th>Birth Date:</th>
-				<td>
-					<!-- Checking date w/ JSP: https://bit.ly/2QZbzsy -->
-					<input
-							type="date" name="birthDate" min="1980-01-01" size="45"
-							required="required" value="<c:out value='${animal.birthDate}' />"/>
-				</td>
-			</tr>
-			<tr>
-				<th>Adoption Price: $</th>
-				<td>
-					<input type="number" name="adoptionPrice" min="0" maxlength="5" size="45"
-						   required="required" value="<c:out value='${animal.adoptionPrice}' />"
-					/>
-				</td>
-			</tr>
-			<tr>
-				<th>Traits:</th>
-				<td>
-					<!-- CHECK: HTML5 removed support of "pattern" attribute -->
-					<!-- With "pattern" forces only letters and spaces to be entered -->
-					<textarea
-							id="traits" name="traits"
-							cols="45" rows="2" maxlength="60" wrap="soft"
-							pattern="[A-Za-z ]" required="required"
-					></textarea>
-				</td>
-			</tr>
-			<tr>
-				<td colspan="2">
-					<input type="submit" value="Submit"/>
+					<a href="edit?id=<c:out value='${user.username}' />">Edit</a>
+					&nbsp;&nbsp;&nbsp;&nbsp;
+					<a href="delete?id=<c:out value='${user.username}' />">Delete</a>
 				</td>
 			</tr>
 		</table>
-		
-		<input type="hidden" name="animalID" value="${animal.animalID}">
-		
-	</form>
 </div>
 </body>
 </html>
@@ -95,6 +59,7 @@
 		font-size: 1.2em;
 		color: #000033;
 	}
+	
 	
 	/*--| Element Selectors |--*/
 	

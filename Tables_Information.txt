@@ -1,6 +1,6 @@
 Reference Outline of All Tables
 
-*This document may not be up to date*
+*This document is NOT up to date*
 
 ---| User |---
 Attributes

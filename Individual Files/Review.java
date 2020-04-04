@@ -23,14 +23,14 @@ public class Review {
     public Review(int id, int animalID, String authorUsername, String rating, String comment) {
         this(animalID, authorUsername, rating, comment);
         this.id = id;
-    }
-
-	public Review(int animalID, String authorUsername, String rating, String comment) {
-        this.animalID = animalID;
-		this.authorUsername = authorUsername;
-		this.rating = rating;
-		this.comment = comment;
 	}
+
+    public Review(int animalID, String authorUsername, String rating, String comment) {
+        this.animalID = animalID;
+        this.authorUsername = authorUsername;
+        this.rating = rating;
+        this.comment = comment;
+    }
 
     public void setReviewID(int id) {
 	    this.id = id;
@@ -76,4 +76,4 @@ public class Review {
         this.comment = comment;
     }
 
-}// end [ CLASS: Review ]
+}// END CLASS [ Review ]

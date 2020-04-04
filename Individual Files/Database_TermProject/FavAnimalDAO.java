@@ -16,32 +16,25 @@ import java.util.List;
 
 //------------------------------------------------------------------------------------------------------//
 // Notes:                                                                                               //
-//      - The password for our Default Root user was changed to differentiate between:                  //
-//              [Root: InitializeDB.jsp] AND [Root: Local MySQL Instance Admin, Workbench]              //
-//      - The method closeAndDisconnectAll() is implemented to replace the methods                      //
-//              resultSet.close() statement.close(), preparedStatement.close(), connect.disconnect().   //
-//              with intent to eliminate guess work as to which SQL items need to be closed and when.   //
-//      - !! The size of the table columns that reference usernames (e.g. favBreedersUsername) must     //
+//      - The size of the table columns that reference usernames (e.g. favBreedersUsername) must        //
 //              match the size of corresponding column in the reference table.                          //
 //              [EXAMPLE]: If in table Users username is set to "varchar(30), then in                   //
 //                         table favBreeders favBreedersUsername must also be "varchar(30)"             //
-//                                                                                                      //
-// IntelliJ Warning Suppression:                                                                     //
-/*       */ @SuppressWarnings("SqlNoDataSourceInspection")                                              //
+//      - Deleting a tuple from the FavAnimals table effectively "deletes" the animal                   //
+//          from the user's fav                                                                         //
 //                                                                                                      //
 //------------------------------------------------------------------------------------------------------//
 
-
 @WebServlet("/FavAnimalDAO")
 public class FavAnimalDAO extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-	private Connection connect = null;
-	private Statement statement = null;
-	private PreparedStatement preparedStatement = null;
-	private ResultSet resultSet = null;
-	
+//  private static final long serialVersionUID = 1L;
+    private Connection connect = null;
+    private Statement statement = null;
+    private PreparedStatement preparedStatement = null;
+    private ResultSet resultSet = null;
 
-	public FavAnimalDAO() {}
+    public FavAnimalDAO() {
+    }
 
     protected void connect_func() throws SQLException {
         if (connect == null || connect.isClosed()) {
@@ -71,122 +64,99 @@ public class FavAnimalDAO extends HttpServlet {
     }
 
 
-	public void initializeTable() throws SQLException {
+    public void initializeTable() throws SQLException {
 
-		String SQL_clearExistingFavAnimalsTable = "DROP TABLE IF EXISTS favAnimals";
+        String SQL_dropTable;
+        String SQL_createTable;
 
-		// CHECK: Change name of "username" to "favoriteBy" or similar
-		String SQL_tableFavAnimals = "CREATE TABLE IF NOT EXISTS favAnimals" +
-                                        "(animalID INTEGER NOT NULL, " +
-                                        "username varchar(30), " +
-                                        "PRIMARY KEY (animalID, username)," +
-                                        "FOREIGN KEY (animalID) REFERENCES Animals(animalID)," +
-                                        "FOREIGN KEY (username) REFERENCES Users(username)); ";
+        SQL_dropTable = "DROP TABLE IF EXISTS favAnimals";
 
-		connect_func();											            // Ensure active connection
-		statement = connect.createStatement();                              // Create the statement
+        SQL_createTable = "CREATE TABLE IF NOT EXISTS favAnimals (" +
+                "animalID INTEGER NOT NULL, " +
+                "whoFavdAnimal varchar(30) NOT NULL, " +
+                "PRIMARY KEY (animalID, whoFavdAnimal)," +
+                "FOREIGN KEY (animalID) REFERENCES Animals(animalID) ON DELETE CASCADE," +
+                "FOREIGN KEY (whoFavdAnimal) REFERENCES Users(username) ON DELETE CASCADE); ";
 
-		statement.executeUpdate(SQL_clearExistingFavAnimalsTable);          // Drop any preexisting FavAnimals table
-		statement.executeUpdate(SQL_tableFavAnimals);                       // Establish new FavAnimals table
+        connect_func();                                                         // Ensure active connection
+        statement = connect.createStatement();
+        statement.executeUpdate("SET FOREIGN_KEY_CHECKS = 0");                  // Disable foreign checks to allow for table drop
 
-        closeAndDisconnectAll();
-	}
+        statement.executeUpdate(SQL_dropTable);                                 // Drop any preexisting FavAnimals table
+        statement.executeUpdate(SQL_createTable);                               // Establish new FavAnimals table
 
-	
-	public List<Animal> listAllFavoriteAnimals(String username) throws SQLException {
-
-		connect_func();
-		
-	    List<Animal> listAnimals = new ArrayList<>();
-        String sql = "SELECT * FROM favAnimals WHERE username = ?";
-
-		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-		preparedStatement.setString(1, username);
-		resultSet = statement.executeQuery(sql);
-
-		while (resultSet.next())
-		{
-			int id = resultSet.getInt("id");
-			String name = resultSet.getString("name");
-			String species = resultSet.getString("species");
-			String birthDate = resultSet.getString("birthDate");
-			int adoptionPrice = resultSet.getInt("adoptionPrice");
-			String ownerUsername = resultSet.getString("ownerID");
-
-			// !! TODO: Add a method to list traits in the form (like a text box or links?)
-
-			Animal animal = new Animal(id, name, species, birthDate, adoptionPrice, ownerUsername);
-			listAnimals.add(animal);
-		}
+        statement.executeUpdate("SET FOREIGN_KEY_CHECKS = 1");                  // Re-enable foreign key constraints
 
         closeAndDisconnectAll();
-
-		return listAnimals;
-	}
-
-	
-	public boolean insert(int animalID, String ownerUsername) throws SQLException {
-
-	    connect_func();
-
-	    String sql = "INSERT INTO favAnimals(animalID, username) VALUES (?, ?)";
-
-	    preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-		preparedStatement.setInt(1, animalID);
-		preparedStatement.setString(2, ownerUsername);
-
-		boolean rowInserted = preparedStatement.executeUpdate() > 0;
-
-        closeAndDisconnectAll();
-
-		return rowInserted;
-	}
+        System.out.println("FavAnimals Table: Initialized");
+    }
 
 
-	public boolean delete(int animalID) throws SQLException {
+    public List<Animal> listAllFavAnimals(String whoFavdAnimal) throws SQLException {
 
-		String sql = "DELETE FROM favAnimals WHERE animalID = ?";
+        List<Animal> listFavAnimals;
+        String SQL_getAnimals;
+        Animal tempAnimal;
 
-		connect_func();
-		
-		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-		preparedStatement.setInt(1, animalID);
-		
-		boolean rowDeleted = preparedStatement.executeUpdate() > 0;
+        listFavAnimals = new ArrayList<>();
+        SQL_getAnimals = "SELECT * FROM favAnimals WHERE whoFavdAnimal = ?";
+
+        connect_func();
+        preparedStatement = (PreparedStatement) connect.prepareStatement(SQL_getAnimals);
+        preparedStatement.setString(1, whoFavdAnimal);
+        resultSet = statement.executeQuery(SQL_getAnimals);
+
+        while (resultSet.next()) {
+            int id = resultSet.getInt("");
+            String name = resultSet.getString("name");
+            String species = resultSet.getString("species");
+            String birthDate = resultSet.getString("birthDate");
+            int adoptionPrice = resultSet.getInt("adoptionPrice");
+            String ownerUsername = resultSet.getString("ownerUsername");
+
+            tempAnimal = new Animal(id, name, species, birthDate, adoptionPrice, ownerUsername);
+
+            listFavAnimals.add(tempAnimal);
+        }
 
         closeAndDisconnectAll();
+        return listFavAnimals;
+    }
 
-		return rowDeleted;
-	}
+    public boolean insert(int animalID, String ownerUsername) throws SQLException {
 
+        String SQL_insertAnimal;
+        boolean rowInserted;
 
-	public Animal getFavAnimal(String username) throws SQLException {
+        connect_func();
 
-		String sql = "SELECT * FROM favAnimals WHERE username = ?";
+        SQL_insertAnimal = "INSERT INTO favAnimals(animalID, username) VALUES (?, ?)";
 
-		Animal animal = null;
-
-		connect_func();
-		
-		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-		preparedStatement.setString(1, username);
-		
-		resultSet = preparedStatement.executeQuery();
-		
-		if (resultSet.next())
-		{
-			String name = resultSet.getString("name");
-			String species = resultSet.getString("species");
-			String birthDate = resultSet.getString("birthDate");
-			int adoptionPrice = resultSet.getInt("adoptionPrice");
-            String ownerID = resultSet.getString("ownerID");
-
-			animal = new Animal(name, species, birthDate, adoptionPrice, ownerID);
-		}
+        preparedStatement = (PreparedStatement) connect.prepareStatement(SQL_insertAnimal);
+        preparedStatement.setInt(1, animalID);
+        preparedStatement.setString(2, ownerUsername);
+        rowInserted = preparedStatement.executeUpdate() > 0;
 
         closeAndDisconnectAll();
-		
-		return animal;
-	}
+        return rowInserted;
+    }
 
-}// END [ CLASS: FavoritesDAO ]
+
+    public boolean delete(int animalID) throws SQLException {
+
+        boolean rowDeleted;
+        String SQL_deleteAnimal;
+
+        connect_func();
+
+        SQL_deleteAnimal = "DELETE FROM favAnimals WHERE animalID = ?";         // (About deleting) See: Notes
+
+        preparedStatement = (PreparedStatement) connect.prepareStatement(SQL_deleteAnimal);
+        preparedStatement.setInt(1, animalID);
+        rowDeleted = preparedStatement.executeUpdate() > 0;
+
+        closeAndDisconnectAll();
+        return rowDeleted;
+    }
+
+}// END CLASS [ FavAnimalDAO ]
